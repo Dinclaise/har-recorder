@@ -1,0 +1,28 @@
+# Dependencies and builds
+node_modules/
+dist/
+*.local
+
+# Vite
+preview/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Chrome Web Store leftovers
+_metadata/
+
+# Editor
+.idea/
+.vscode/
+*.swp
+
+# Recorded HAR dumps
+*.har
