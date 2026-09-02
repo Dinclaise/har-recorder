@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <title>HAR Recorder</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="header">
+      <img class="logo" src="player_record.png" alt="" width="28" height="28" />
+      <div class="titles">
+        <strong>HAR Recorder</strong>
+        <span>ПАРАМЕТРЫ</span>
+      </div>
+    </header>
+
+    <label class="choice">
+      <input id="open-popup" type="checkbox" />
+      <span>Открывать панель при клике по иконке</span>
+    </label>
+    <label class="choice">
+      <input id="theme-light" type="checkbox" />
+      <span>Светлая тема</span>
+    </label>
+    <p class="field-hint">
+      Если панель выключена, клик сразу включает или останавливает запись.
+    </p>
+    <script src="options.js" type="module"></script>
+  </body>
+</html>

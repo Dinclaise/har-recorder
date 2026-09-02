@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <title>HAR Recorder</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="header">
+      <img class="logo" src="player_record.png" alt="" width="28" height="28" />
+      <div class="titles">
+        <strong>HAR Recorder</strong>
+        <span>ЭКСПОРТ HAR</span>
+      </div>
+      <button id="theme" class="icon-btn" type="button" title="Сменить тему">
+        <span id="theme-icon">🌙</span>
+      </button>
+      <div id="pill" class="pill pill--ready">
+        <span class="pill-dot"></span>
+        <span id="pill-text">ГОТОВ</span>
+      </div>
+    </header>
+
+    <section class="stats">
+      <div>
+        <b id="request-count">0</b>
+        <span>ЗАПРОСЫ</span>
+      </div>
+      <div>
+        <b id="duration">00:00</b>
+        <span>ДЛИТЕЛЬНОСТЬ</span>
+      </div>
+    </section>
+
+    <div class="controls">
+      <button id="start" class="btn btn--start" type="button">▶ Начать запись</button>
+      <button id="stop" class="btn btn--stop" type="button" disabled>■ Стоп</button>
+    </div>
+
+    <div id="banner" class="banner" hidden>
+      <span id="banner-dot" class="live-dot" hidden></span>
+      <div class="banner-copy">
+        <strong id="banner-title"></strong>
+        <span id="banner-text"></span>
+      </div>
+    </div>
+    <p id="error" class="error" hidden></p>
+
+    <section class="card">
+      <h2>Параметры экспорта</h2>
+      <label class="field-label" for="filename">ИМЯ ФАЙЛА</label>
+      <div class="filename">
+        <input id="filename" type="text" maxlength="80" placeholder="network-log" />
+        <span>.har</span>
+      </div>
+      <p class="field-hint">К имени автоматически добавится дата и время</p>
+
+      <label class="switch-row">
+        <span>
+          <strong>Очищать секреты</strong>
+          <small>Токены, cookie и пароли заменяются на [REDACTED]</small>
+        </span>
+        <span class="switch">
+          <input id="scrub" type="checkbox" />
+          <span class="switch-ui" aria-hidden="true"></span>
+        </span>
+      </label>
+
+      <label class="switch-row">
+        <span>
+          <strong>Только XHR и Fetch</strong>
+          <small>В HAR не попадут картинки, CSS и шрифты</small>
+        </span>
+        <span class="switch">
+          <input id="xhr-only" type="checkbox" />
+          <span class="switch-ui" aria-hidden="true"></span>
+        </span>
+      </label>
+
+      <details class="accordion">
+        <summary>Ещё настройки</summary>
+
+        <label class="switch-row">
+          <span>
+            <strong>Только ошибки 4xx/5xx</strong>
+            <small>В экспорт попадут лишь упавшие запросы</small>
+          </span>
+          <span class="switch">
+            <input id="errors-only" type="checkbox" />
+            <span class="switch-ui" aria-hidden="true"></span>
+          </span>
+        </label>
+
+        <label class="switch-row">
+          <span>
+            <strong>Без тел ответов</strong>
+            <small>HAR легче, удобнее слать в тикет</small>
+          </span>
+          <span class="switch">
+            <input id="skip-bodies" type="checkbox" />
+            <span class="switch-ui" aria-hidden="true"></span>
+          </span>
+        </label>
+
+        <label class="switch-row">
+          <span>
+            <strong>Скачивать HAR при стопе</strong>
+            <small>Не нужно отдельно жать «Экспорт»</small>
+          </span>
+          <span class="switch">
+            <input id="auto-export" type="checkbox" />
+            <span class="switch-ui" aria-hidden="true"></span>
+          </span>
+        </label>
+
+        <label class="field-label" for="url-contains">URL содержит</label>
+        <input id="url-contains" class="text-input" type="text" maxlength="120" placeholder="/api/" />
+        <p class="field-hint">Оставьте пустым, чтобы не фильтровать по адресу</p>
+      </details>
+    </section>
+
+    <div class="actions">
+      <button id="export" class="btn btn--export" type="button" disabled>⬇ Экспорт HAR</button>
+      <button
+        id="copy-curl"
+        class="btn btn--ghost"
+        type="button"
+        disabled
+        title="Копирует последний запрос как команду curl: можно сразу повторить в терминале или вставить в тикет"
+      >
+        cURL
+      </button>
+      <button id="clear" class="btn btn--ghost" type="button" disabled>Очистить</button>
+    </div>
+    <p class="field-hint curl-hint">
+      cURL копирует последний запрос в буфер как команду. Её можно сразу выполнить в терминале или вставить в тикет, не открывая HAR.
+    </p>
+
+    <p class="disclaimer">
+      HAR содержит <strong>пароли, токены и cookie</strong>. Не отправляйте файл в общий чат без очистки секретов.
+    </p>
+
+    <label class="choice">
+      <span class="switch">
+        <input id="open-popup" type="checkbox" />
+        <span class="switch-ui" aria-hidden="true"></span>
+      </span>
+      <span>Открывать панель при клике</span>
+    </label>
+
+    <footer>v1.5 · HAR 1.2 · Данные остаются локально</footer>
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>
