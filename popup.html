@@ -10,31 +10,34 @@
       <img class="logo" src="player_record.png" alt="" width="28" height="28" />
       <div class="titles">
         <strong>HAR Recorder</strong>
-        <span>ЭКСПОРТ HAR</span>
+        <span data-i18n="subtitle">ЭКСПОРТ HAR</span>
       </div>
-      <button id="theme" class="icon-btn" type="button" title="Сменить тему">
+      <button id="theme" class="icon-btn" type="button" data-i18n-title="themeTitle">
         <span id="theme-icon">🌙</span>
+      </button>
+      <button id="locale" class="icon-btn lang-btn" type="button" data-i18n-title="localeTitle">
+        <span id="locale-label">EN</span>
       </button>
       <div id="pill" class="pill pill--ready">
         <span class="pill-dot"></span>
-        <span id="pill-text">ГОТОВ</span>
+        <span id="pill-text" data-i18n="pillReady">ГОТОВ</span>
       </div>
     </header>
 
     <section class="stats">
       <div>
         <b id="request-count">0</b>
-        <span>ЗАПРОСЫ</span>
+        <span data-i18n="statsRequests">ЗАПРОСЫ</span>
       </div>
       <div>
         <b id="duration">00:00</b>
-        <span>ДЛИТЕЛЬНОСТЬ</span>
+        <span data-i18n="statsDuration">ДЛИТЕЛЬНОСТЬ</span>
       </div>
     </section>
 
     <div class="controls">
-      <button id="start" class="btn btn--start" type="button">▶ Начать запись</button>
-      <button id="stop" class="btn btn--stop" type="button" disabled>■ Стоп</button>
+      <button id="start" class="btn btn--start" type="button" data-i18n="start">▶ Начать запись</button>
+      <button id="stop" class="btn btn--stop" type="button" disabled data-i18n="stop">■ Стоп</button>
     </div>
 
     <div id="banner" class="banner" hidden>
@@ -47,18 +50,18 @@
     <p id="error" class="error" hidden></p>
 
     <section class="card">
-      <h2>Параметры экспорта</h2>
-      <label class="field-label" for="filename">ИМЯ ФАЙЛА</label>
+      <h2 data-i18n="exportOptions">Параметры экспорта</h2>
+      <label class="field-label" for="filename" data-i18n="filename">ИМЯ ФАЙЛА</label>
       <div class="filename">
         <input id="filename" type="text" maxlength="80" placeholder="network-log" />
         <span>.har</span>
       </div>
-      <p class="field-hint">К имени автоматически добавится дата и время</p>
+      <p class="field-hint" data-i18n="filenameHint">К имени автоматически добавится дата и время</p>
 
       <label class="switch-row">
         <span>
-          <strong>Очищать секреты</strong>
-          <small>Токены, cookie и пароли заменяются на [REDACTED]</small>
+          <strong data-i18n="scrubTitle">Очищать секреты</strong>
+          <small data-i18n="scrubHint">Токены, cookie и пароли заменяются на [REDACTED]</small>
         </span>
         <span class="switch">
           <input id="scrub" type="checkbox" />
@@ -68,8 +71,8 @@
 
       <label class="switch-row">
         <span>
-          <strong>Только XHR и Fetch</strong>
-          <small>В HAR не попадут картинки, CSS и шрифты</small>
+          <strong data-i18n="xhrTitle">Только XHR и Fetch</strong>
+          <small data-i18n="xhrHint">В HAR не попадут картинки, CSS и шрифты</small>
         </span>
         <span class="switch">
           <input id="xhr-only" type="checkbox" />
@@ -78,12 +81,12 @@
       </label>
 
       <details class="accordion">
-        <summary>Ещё настройки</summary>
+        <summary data-i18n="moreSettings">Ещё настройки</summary>
 
         <label class="switch-row">
           <span>
-            <strong>Только ошибки 4xx/5xx</strong>
-            <small>В экспорт попадут лишь упавшие запросы</small>
+            <strong data-i18n="errorsTitle">Только ошибки 4xx/5xx</strong>
+            <small data-i18n="errorsHint">В экспорт попадут лишь упавшие запросы</small>
           </span>
           <span class="switch">
             <input id="errors-only" type="checkbox" />
@@ -93,8 +96,8 @@
 
         <label class="switch-row">
           <span>
-            <strong>Без тел ответов</strong>
-            <small>HAR легче, удобнее слать в тикет</small>
+            <strong data-i18n="skipBodiesTitle">Без тел ответов</strong>
+            <small data-i18n="skipBodiesHint">HAR легче, удобнее слать в тикет</small>
           </span>
           <span class="switch">
             <input id="skip-bodies" type="checkbox" />
@@ -104,8 +107,8 @@
 
         <label class="switch-row">
           <span>
-            <strong>Скачивать HAR при стопе</strong>
-            <small>Не нужно отдельно жать «Экспорт»</small>
+            <strong data-i18n="autoExportTitle">Скачивать HAR при стопе</strong>
+            <small data-i18n="autoExportHint">Не нужно отдельно жать «Экспорт»</small>
           </span>
           <span class="switch">
             <input id="auto-export" type="checkbox" />
@@ -113,30 +116,31 @@
           </span>
         </label>
 
-        <label class="field-label" for="url-contains">URL содержит</label>
+        <label class="field-label" for="url-contains" data-i18n="urlContains">URL содержит</label>
         <input id="url-contains" class="text-input" type="text" maxlength="120" placeholder="/api/" />
-        <p class="field-hint">Оставьте пустым, чтобы не фильтровать по адресу</p>
+        <p class="field-hint" data-i18n="urlContainsHint">Оставьте пустым, чтобы не фильтровать по адресу</p>
       </details>
     </section>
 
     <div class="actions">
-      <button id="export" class="btn btn--export" type="button" disabled>⬇ Экспорт HAR</button>
+      <button id="export" class="btn btn--export" type="button" disabled data-i18n="exportHar">⬇ Экспорт HAR</button>
       <button
         id="copy-curl"
         class="btn btn--ghost"
         type="button"
         disabled
-        title="Копирует последний запрос как команду curl: можно сразу повторить в терминале или вставить в тикет"
+        data-i18n="curl"
+        data-i18n-title="curlTitle"
       >
         cURL
       </button>
-      <button id="clear" class="btn btn--ghost" type="button" disabled>Очистить</button>
+      <button id="clear" class="btn btn--ghost" type="button" disabled data-i18n="clear">Очистить</button>
     </div>
-    <p class="field-hint curl-hint">
+    <p class="field-hint curl-hint" data-i18n="curlHint">
       cURL копирует последний запрос в буфер как команду. Её можно сразу выполнить в терминале или вставить в тикет, не открывая HAR.
     </p>
 
-    <p class="disclaimer">
+    <p class="disclaimer" data-i18n-html="disclaimer">
       HAR содержит <strong>пароли, токены и cookie</strong>. Не отправляйте файл в общий чат без очистки секретов.
     </p>
 
@@ -145,10 +149,10 @@
         <input id="open-popup" type="checkbox" />
         <span class="switch-ui" aria-hidden="true"></span>
       </span>
-      <span>Открывать панель при клике</span>
+      <span data-i18n="openPopup">Открывать панель при клике</span>
     </label>
 
-    <footer>v1.5 · HAR 1.2 · Данные остаются локально</footer>
+    <footer data-i18n="footer">v1.5 · HAR 1.2 · Данные остаются локально</footer>
     <script src="popup.js" type="module"></script>
   </body>
 </html>

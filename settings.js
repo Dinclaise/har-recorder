@@ -10,6 +10,7 @@ const DEFAULTS = {
   skipBodies: false,
   autoExportOnStop: false,
   urlContains: '',
+  locale: 'ru',
 };
 
 export const getSettings = async () => {
@@ -26,6 +27,7 @@ export const getSettings = async () => {
     skipBodies: result.skipBodies === true,
     autoExportOnStop: result.autoExportOnStop === true,
     urlContains: typeof result.urlContains === 'string' ? result.urlContains : '',
+    locale: result.locale === 'en' ? 'en' : 'ru',
   };
 };
 

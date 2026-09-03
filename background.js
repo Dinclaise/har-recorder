@@ -3,6 +3,7 @@ import { StatsBuilder } from './stats.js';
 import { HARBuilder } from './har.js';
 import { applyPopupMode, getSettings, setSettings } from './settings.js';
 import { buildFileName, filterHar, matchesStatsFilters, scrubHar, toCurlFromStatsEntry } from './export-utils.js';
+import { t } from './i18n.js';
 
 const PROTOCOL_VERSION = '1.3';
 const sessions = new Map();
@@ -23,13 +24,18 @@ const toPlainEntries = (entries) => Object.assign({}, entries);
 
 const countEntries = (stats) => Object.keys(toPlainEntries(stats?.entries)).length;
 
-const formatDebuggerError = (error) => {
+const translate = async (key, params) => {
+  const settings = await getSettings();
+  return t(settings.locale, key, params);
+};
+
+const formatDebuggerError = async (error) => {
   const text = error instanceof Error ? error.message : String(error);
   if (/another debugger|already attached/i.test(text)) {
-    return 'Закройте DevTools на этой вкладке и нажмите «Начать запись» ещё раз';
+    return translate('errorDevtoolsOpen');
   }
   if (/cannot attach|not allowed|chrome:\/\//i.test(text)) {
-    return 'Эту страницу нельзя записывать. Откройте обычный http/https сайт';
+    return translate('errorCannotAttach');
   }
   return text;
 };
@@ -38,11 +44,11 @@ const setRecordingIcon = async (tabId, recording) => {
   await chrome.action.setBadgeText({ tabId, text: '' });
   if (recording) {
     await chrome.action.setIcon({ path: 'player_record.png' });
-    await chrome.action.setTitle({ tabId, title: 'Идёт запись сети' });
+    await chrome.action.setTitle({ tabId, title: await translate('recordingTooltip') });
     return;
   }
   await chrome.action.setIcon({ path: 'icons8-record-16.png' });
-  await chrome.action.setTitle({ tabId, title: 'HAR Recorder' });
+  await chrome.action.setTitle({ tabId, title: await translate('idleTooltip') });
 };
 
 const setErrorBadge = async (tabId) => {
@@ -188,12 +194,12 @@ const lastCurl = async (session) => {
   const selected = withUrl.find((entry) => matchesStatsFilters(entry, settings)) ?? withUrl[0];
 
   if (!selected) {
-    throw new Error('Нет запросов для cURL. Походите по странице и нажмите Стоп');
+    throw new Error(await translate('errorNoCurl'));
   }
 
   const curl = toCurlFromStatsEntry(selected, settings.scrub);
   if (!curl) {
-    throw new Error('Не удалось собрать cURL из последнего запроса');
+    throw new Error(await translate('errorCurlBuild'));
   }
   return curl;
 };
@@ -228,10 +234,10 @@ const getStateForTab = async (tab) => {
 
 const startRecording = async (tab) => {
   if (!tab?.id) {
-    throw new Error('Нет активной вкладки');
+    throw new Error(await translate('errorNoTab'));
   }
   if (!canRecordUrl(tab.url)) {
-    throw new Error('Запись доступна только на обычных http/https страницах');
+    throw new Error(await translate('errorHttpOnly'));
   }
 
   let session = getSession(tab.id);
@@ -258,7 +264,7 @@ const startRecording = async (tab) => {
     await attachDebugger(tab.id);
   } catch (error) {
     await setErrorBadge(tab.id);
-    throw new Error(formatDebuggerError(error));
+    throw new Error(await formatDebuggerError(error));
   }
 
   session.recording = true;
@@ -269,7 +275,7 @@ const startRecording = async (tab) => {
 
 const stopRecording = async (tab) => {
   if (!tab?.id) {
-    throw new Error('Нет активной вкладки');
+    throw new Error(await translate('errorNoTab'));
   }
   const session = getSession(tab.id);
   if (session?.recording) {
@@ -283,7 +289,7 @@ const stopRecording = async (tab) => {
 
 const clearRecording = async (tab) => {
   if (!tab?.id) {
-    throw new Error('Нет активной вкладки');
+    throw new Error(await translate('errorNoTab'));
   }
   const session = getSession(tab.id);
   if (session?.recording) {
@@ -296,16 +302,16 @@ const clearRecording = async (tab) => {
 
 const exportHar = async (tab) => {
   if (!tab?.id) {
-    throw new Error('Нет активной вкладки');
+    throw new Error(await translate('errorNoTab'));
   }
   const session = getSession(tab.id);
   if (!session || countEntries(session.stats) === 0) {
-    throw new Error('Пока нет записанных запросов');
+    throw new Error(await translate('errorNoRequests'));
   }
   const settings = await getSettings();
   const har = await buildHarForSession(session);
   if (har.log.entries.length === 0) {
-    throw new Error('После фильтров запросов не осталось. Ослабьте настройки в аккордеоне');
+    throw new Error(await translate('errorFilteredEmpty'));
   }
   const fileName = buildFileName(settings.filename, session.host);
   return { har, fileName };
@@ -417,7 +423,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message?.type === 'COPY_CURL') {
       const session = tab?.id ? getSession(tab.id) : undefined;
       if (!session) {
-        throw new Error('Нет записанных запросов');
+        throw new Error(await translate('errorNoRequests'));
       }
       const curl = await lastCurl(session);
       return { ...(await getStateForTab(tab)), curl };
@@ -426,13 +432,13 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       await setSettings(message.patch ?? {});
       return getStateForTab(tab);
     }
-    throw new Error('Неизвестное сообщение');
+    throw new Error(await translate('errorUnknownMessage'));
   };
 
   handleMessage()
     .then(sendResponse)
-    .catch((error) => {
-      sendResponse({ error: formatDebuggerError(error) });
+    .catch(async (error) => {
+      sendResponse({ error: await formatDebuggerError(error) });
     });
   return true;
 });

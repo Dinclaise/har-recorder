@@ -1,5 +1,9 @@
+import { applyTranslations, formatRequestCount, t } from './i18n.js';
+
 const themeButton = document.querySelector('#theme');
 const themeIcon = document.querySelector('#theme-icon');
+const localeButton = document.querySelector('#locale');
+const localeLabel = document.querySelector('#locale-label');
 const pill = document.querySelector('#pill');
 const pillText = document.querySelector('#pill-text');
 const requestCount = document.querySelector('#request-count');
@@ -26,6 +30,8 @@ const errorNode = document.querySelector('#error');
 const required = [
   themeButton,
   themeIcon,
+  localeButton,
+  localeLabel,
   pill,
   pillText,
   requestCount,
@@ -51,9 +57,10 @@ const required = [
 ];
 
 if (required.some((node) => !(node instanceof HTMLElement))) {
-  throw new Error('В popup не найдены нужные элементы');
+  throw new Error('Popup markup is missing required elements');
 }
 
+let currentLocale = 'ru';
 let stickyError = '';
 let flashTitle = '';
 let flashText = '';
@@ -71,7 +78,7 @@ const sendMessage = async (message) => {
     throw new Error(error instanceof Error ? error.message : String(error));
   }
   if (!response) {
-    throw new Error('Фон расширения не отвечает. Обновите HAR Recorder на chrome://extensions');
+    throw new Error(t(currentLocale, 'errorBackgroundDown'));
   }
   if (response.error) {
     throw new Error(response.error);
@@ -103,17 +110,7 @@ const formatDuration = (ms) => {
   return `${minutes}:${seconds}`;
 };
 
-const formatRequestCount = (count) => {
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-  if (mod10 === 1 && mod100 !== 11) {
-    return `${count} запрос`;
-  }
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-    return `${count} запроса`;
-  }
-  return `${count} запросов`;
-};
+const formatRequestLabel = (count) => formatRequestCount(currentLocale, count);
 
 const applyTheme = (theme) => {
   document.documentElement.dataset.theme = theme;
@@ -144,7 +141,7 @@ const copyText = async (text) => {
     const copied = document.execCommand('copy');
     area.remove();
     if (!copied) {
-      throw new Error('Не удалось скопировать cURL. Разрешите буфер обмена для расширения');
+      throw new Error(t(currentLocale, 'errorClipboard'));
     }
   }
 };
@@ -158,6 +155,9 @@ const setBanner = ({ live, title, text }) => {
 };
 
 const render = (state) => {
+  currentLocale = state.locale === 'en' ? 'en' : 'ru';
+  applyTranslations(document, currentLocale);
+  localeLabel.textContent = currentLocale === 'en' ? 'RU' : 'EN';
   applyTheme(state.theme);
   requestCount.textContent = String(state.requestCount ?? 0);
   durationNode.textContent = formatDuration(state.durationMs);
@@ -192,25 +192,27 @@ const render = (state) => {
   }
 
   if (state.recording) {
-    pillText.textContent = 'ЗАПИСЬ';
+    pillText.textContent = t(currentLocale, 'pillRecording');
     const count = state.requestCount ?? 0;
     setBanner({
       live: true,
-      title: 'Идёт запись',
+      title: t(currentLocale, 'recordingTitle'),
       text:
         count === 0
-          ? 'Обновите страницу или вызовите API — запросы появятся здесь'
-          : `Поймали ${formatRequestCount(count)}`,
+          ? t(currentLocale, 'recordingEmpty')
+          : t(currentLocale, 'recordingCaught', { count: formatRequestLabel(count) }),
     });
     return;
   }
 
-  pillText.textContent = 'ГОТОВ';
+  pillText.textContent = t(currentLocale, 'pillReady');
   if (state.hasData) {
     setBanner({
       live: false,
-      title: 'Готово к экспорту',
-      text: `Снято ${formatRequestCount(state.requestCount ?? 0)}. Можно скачать HAR или cURL.`,
+      title: t(currentLocale, 'exportReadyTitle'),
+      text: t(currentLocale, 'exportReadyText', {
+        count: formatRequestLabel(state.requestCount ?? 0),
+      }),
     });
     return;
   }
@@ -273,10 +275,10 @@ curlButton.addEventListener('click', () => {
   withBusy(curlButton, async () => {
     const result = await sendMessage({ type: 'COPY_CURL' });
     if (!result.curl) {
-      throw new Error('Не удалось собрать cURL');
+      throw new Error(t(currentLocale, 'errorCurlEmpty'));
     }
     await copyText(result.curl);
-    setFlash('cURL скопирован', 'Вставьте в терминал или в тикет');
+    setFlash(t(currentLocale, 'curlCopiedTitle'), t(currentLocale, 'curlCopiedText'));
     return result;
   });
 });
@@ -289,6 +291,15 @@ themeButton.addEventListener('click', async () => {
   const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
   applyTheme(next);
   await sendMessage({ type: 'SET_SETTINGS', patch: { theme: next } });
+});
+
+localeButton.addEventListener('click', async () => {
+  const next = currentLocale === 'en' ? 'ru' : 'en';
+  currentLocale = next;
+  applyTranslations(document, next);
+  localeLabel.textContent = next === 'en' ? 'RU' : 'EN';
+  await sendMessage({ type: 'SET_SETTINGS', patch: { locale: next } });
+  await refresh();
 });
 
 filenameInput.addEventListener('change', async () => {

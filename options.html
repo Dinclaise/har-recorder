@@ -10,19 +10,23 @@
       <img class="logo" src="player_record.png" alt="" width="28" height="28" />
       <div class="titles">
         <strong>HAR Recorder</strong>
-        <span>ПАРАМЕТРЫ</span>
+        <span data-i18n="optionsSubtitle">ПАРАМЕТРЫ</span>
       </div>
     </header>
 
     <label class="choice">
       <input id="open-popup" type="checkbox" />
-      <span>Открывать панель при клике по иконке</span>
+      <span data-i18n="optionsOpenPopup">Открывать панель при клике по иконке</span>
     </label>
     <label class="choice">
       <input id="theme-light" type="checkbox" />
-      <span>Светлая тема</span>
+      <span data-i18n="optionsLightTheme">Светлая тема</span>
     </label>
-    <p class="field-hint">
+    <label class="choice">
+      <input id="locale-en" type="checkbox" />
+      <span>English</span>
+    </label>
+    <p class="field-hint" data-i18n="optionsHint">
       Если панель выключена, клик сразу включает или останавливает запись.
     </p>
     <script src="options.js" type="module"></script>
